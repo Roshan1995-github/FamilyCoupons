@@ -1,6 +1,6 @@
 function databaseLink(){  
-  // var databaseLink = 'https://golfdatabase2test.herokuapp.com';
-  var databaseLink = 'http://coupons.test';
+  var databaseLink = 'https://familycoupons.herokuapp.com';
+  // var databaseLink = 'http://coupons.test';
   return databaseLink;
 }
 
