@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<title>Organization Admin Task page</title>
+	<style type="text/css">
+		#tablebody>tr:hover {
+		      background-color: green;
+		}
+		input[type="number"]::-webkit-outer-spin-button, 
+		input[type="number"]::-webkit-inner-spin-button {
+		    -webkit-appearance: none;
+		    margin: 0;
+		}
+		input[type="number"] {
+		    -moz-appearance: textfield;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'members.html?os='+orgSlug" class="navigation-btns">Members</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-10">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<!--Main Content-->
+	<div>
+		<!--New Task button-->
+		<div class="create-task-btn-div">
+			<button onclick="newTask()">Create New Task</button>
+		</div>
+		<table>
+			<thead class="task-table-main task-table-main-hB">
+				<tr>
+					<td>
+						Task Name
+					</td>
+					<td>
+						Participants
+					</td>
+					<td>
+						Completed
+					</td>
+					<td>
+						Approval Status
+					</td>
+				</tr>
+			</thead>
+			<tbody id='tablebody' class="task-table-main"></tbody>
+		</table>
+
+		<!-- The Modal -->
+		<div id="myModal" class="modal">
+
+		  <!-- Modal content -->
+		  <div class="modal-task-details">
+		    <span onclick="closeModal()" class="close-modal">&times;</span>
+		    <table class="task-modal-table">
+		    	<tbody>
+		    		<tr>
+		    			<td>Task Name</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="taskName"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Task Description</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="description"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Participants</td>
+		    			<td>:</td>
+		    			<td><!-- get members then add them with checkboxes-->
+					    	<div id="participants">
+					   
+					    	</div>
+					    </td>
+		    		</tr>
+		    		<tr id="completedP">
+		    			<td>Completion Status</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="completed" class="no-border"></td>
+		    		</tr>
+		    		<tr id="approvedP">
+		    			<td>Aproval Status</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="status" class="no-border"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Points</td>
+		    			<td>:</td>
+		    			<td><input type="number" name="points"></td>
+		    		</tr>
+		    	</tbody>
+		    </table>
+		    <div class="task-modal-buttons">
+		    	<button onclick="closeModal()">Cancel</button>
+		    	<button id="createApproveBtn" onclick="createTask()"></button>
+		    </div>
+		</div>
+	</div>	
+</div>
+
+<script type="text/javascript">
+	var databaseLink = 'http://coupons.test';
+	var token = sessionStorage.getItem("token");
+  if(!token){
+      window.location.replace("../login.html")
+  }
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+
+	var taskName = document.getElementsByName('taskName')[0];
+	var description = document.getElementsByName('description')[0];
+	var completed = document.getElementsByName('completed')[0];
+	var approvalStatus = document.getElementsByName('status')[0];
+	var points = document.getElementsByName('points')[0];
+
+	var tablebody = document.getElementById('tablebody')
+	var participants = document.getElementById('participants')
+	var createApproveBtn = document.getElementById('createApproveBtn');
+	var completedP = document.getElementById('completedP');
+	var approvedP = document.getElementById('approvedP');
+
+	var taskData = "";
+	var users = "";
+
+	function openModal(){
+		document.getElementById('myModal').style.display="block";
+	}
+
+	function closeModal(){
+		document.getElementById('myModal').style.display="none";
+	}
+
+	function inputStatus(env){
+		if(env == 'false'){
+			taskName.removeAttribute('disabled')
+			description.removeAttribute('disabled')
+			completed.removeAttribute('disabled')
+			approvalStatus.removeAttribute('disabled')
+			points.removeAttribute('disabled')
+		}else{
+			taskName.setAttribute('disabled', env)
+			description.setAttribute('disabled', env)
+			completed.setAttribute('disabled', env)
+			approvalStatus.setAttribute('disabled', env)
+			points.setAttribute('disabled', env)
+		}
+	}
+
+	function newTask(){
+		openModal();
+		clearFunc();
+		inputStatus('false');
+		participants.innerHTML = ""
+		for(var i=0; i<users.length; i++){
+			var lbl = document.createElement('LABEL')
+			var div = document.createElement('DIV') 
+			var inp = document.createElement('INPUT') 
+
+			inp.setAttribute('type', 'checkbox')
+			inp.setAttribute('name', 'participantUser')
+			inp.setAttribute('id', users[i].slug)
+			inp.setAttribute('value', users[i].slug)
+
+			lbl.innerHTML = capitalize(users[i].name)
+			div.appendChild(inp)
+			div.appendChild(lbl)
+
+			lbl.setAttribute('class', 'participant-name')
+			lbl.setAttribute('for', users[i].slug)
+			div.setAttribute('class', 'display-flex-SB')
+			participants.appendChild(div)
+		}
+		// changeDisplay(completedP,'none');
+		// changeDisplay(approvedP,'none');
+
+		completed.value = "False"
+		approvalStatus.value = "False"
+
+		createApproveBtn.setAttribute('onclick', 'createTask()')
+		createApproveBtn.innerHTML = "Create"
+		createApproveBtn.removeAttribute('disabled')
+	}
+
+	function viewTask(){
+		openModal();
+		inputStatus('true');
+		// changeDisplay(completedP,'block');
+		// changeDisplay(approvedP,'block');
+	}
+
+	function clearFunc(){
+		taskName.value = ""
+		description.value = ""
+		completed.value = ""
+		approvalStatus.value = ""
+		points.value = ""
+
+		//participants.innerHTML = ""
+	}
+
+	function createTask(){
+		var participantsArray = [];
+		var participantUser = document.getElementsByName('participantUser')
+
+		for (var i=0; i<participantUser.length; i++){
+			console.log(participantUser[i].value)
+			console.log(participantUser[i].checked)
+			if(participantUser[i].checked){
+				var obj = {
+					slug: participantUser[i].value
+				}
+				participantsArray.push(obj)
+			}
+		}
+
+		const data = {
+			orgSlug: orgSlug,
+			taskName:taskName.value,
+			description:description.value,
+			// later add participants 
+			participants:participantsArray,
+			points:points.value
+		}
+		console.log(data)
+		fetch(databaseLink+'/api/new-task', {
+	        method: 'POST', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	                'Authorization': 'Bearer '+token
+	        },
+	        body: JSON.stringify(data),
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+	        getTask()
+	        closeModal()
+	        alert(data.message);
+	      })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}
+
+	function getTask(){
+		fetch(databaseLink+'/api/get-org-tasks-admin/'+orgSlug, {
+	        method: 'GET', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        }
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+	        users = data.orgUsers
+	        var data = data.data
+
+	        console.log(users)
+			tablebody.innerHTML = ""
+			participants.innerHTML = ""
+
+			
+
+			for(var i=0; i<data.length; i++){
+				var tr = document.createElement('TR')
+				var td1 = document.createElement('TD')
+				var td2 = document.createElement('TD')
+				var td3 = document.createElement('TD')
+				var td4 = document.createElement('TD')
+
+				tr.setAttribute('id', i)
+				
+				td1.innerHTML = capitalize(data[i].name)
+				if(data[i].assigned_to_id){
+					td2.innerHTML = capitalize(data[i].assigned_to_id.name)
+				}else{
+					td2.innerHTML = ""
+				}
+				
+				td3.innerHTML = capitalize(data[i].completion)
+				td4.innerHTML = capitalize(data[i].status)
+
+				tr.appendChild(td1)
+				tr.appendChild(td2)
+				tr.appendChild(td3)
+				tr.appendChild(td4)
+
+				tablebody.appendChild(tr)
+
+				tr.addEventListener('click', function(e){
+					viewTask()
+					taskData = data[this.id]
+
+					taskName.value = capitalize(taskData.name)
+					description.value = taskData.description
+					participants.innerHTML = capitalize(taskData.assigned_to_id.name)
+					completed.value = capitalize(taskData.completion)
+					approvalStatus.value = capitalize(taskData.status)
+					points.value = taskData.points
+					if(taskData.assigned_to_id){
+						td2.innerHTML = taskData.assigned_to_id.name
+					}else{
+						td2.innerHTML = ""
+					}
+
+					createApproveBtn.setAttribute('onclick', 'approveTask()')
+					createApproveBtn.innerHTML = "Approve"
+
+					createApproveBtn.removeAttribute('disabled')
+
+					if(taskData.completion == "false"){
+						createApproveBtn.setAttribute('disabled', 'true')
+					}
+
+					if(taskData.status == "true"){
+						createApproveBtn.setAttribute('disabled', 'true')
+					}
+            	})
+			}
+
+	    })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}getTask();
+
+	function approveTask(){
+		// add new button "reject"
+		//then take decision and add it to data
+		const data = {
+			orgSlug: orgSlug,
+			taskID: taskData.id
+		}
+		console.log(data)
+		fetch(databaseLink+'/api/approve-task', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '+token
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        closeModal()
+        getTask()
+        alert(data.message);
+      })
+    .catch((error) => {
+        console.error('Error:', error);
+    }); 
+	}
+
+</script>
+
+</body>
+</html>

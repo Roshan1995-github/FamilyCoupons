@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<style type="text/css">
+		#shopContent {
+			margin-top: 50px;
+		}
+	</style>
+	<title>Organization User Shop</title>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-5">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<div id="shopContent">
+		
+	</div>
+
+	<div class="modal" id="modal">
+		<div class="modal-item-details">
+			<div id="modal-item-details"></div>
+			<div>
+				<button onclick="closeModal()">Cancel</button>
+				<button onclick="claimItemFunc()">Claim</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var databaseLink = databaseLink();
+	var token = sessionStorage.getItem("token");
+	if(!token){
+	    window.location.replace("../login.html")
+	}
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+	console.log(orgSlug)
+
+	var item = ""
+	var selectedItem = ""
+
+	var shopContent = document.getElementById('shopContent')
+	var modal = document.getElementById('modal')
+	var modalItemDetails = document.getElementById('modal-item-details')
+
+
+	function getUserShopItemFunc(){
+		console.log("ok")
+		shopContent.innerHTML = ""
+		fetch(databaseLink+'/api/get-children-shop-items/'+orgSlug, {
+	      method: 'GET', // or 'PUT'
+	      headers: {
+	          'Content-Type': 'application/json', 
+	          'Authorization': 'Bearer '+token
+	      },
+	  	})
+		.then(response => response.json())
+	    .then(data => {
+	    	console.log('Success:', data);
+	    	 if(data != null) {
+	    	 	item = data.data
+	    	 	var data = data.data
+	    	 	for(var i=0; i<data.length; i++) {
+	    	 		var items = data[i].shopable_id
+
+	    	 		var div = document.createElement('div')
+	    	 		var img1 = document.createElement('IMG')
+	    	 		var p1 = document.createElement('P')
+	    	 		var p2 = document.createElement('P')
+
+	    	 		img1.setAttribute('src', items.image)
+	    	 		img1.setAttribute('src', 'https://img.freepik.com/premium-photo/image-colorful-galaxy-sky-generative-ai_791316-9864.jpg?w=2000')
+	    	 		p1.textContent = capitalize(items.item_name)
+	    	 		p2.textContent = data[i].points+' points'
+
+	    	 		div.setAttribute('class', 'shop-item-div')
+	    	 		div.setAttribute('onclick', 'itemDetailsFunc(this)')
+	    	 		div.setAttribute('id', i)
+	    	 		div.appendChild(img1)
+	    	 		div.appendChild(p1)
+	    	 		div.appendChild(p2)
+	    	 		shopContent.appendChild(div)
+	    	 	}
+	    	 }	    	
+	    })
+		.catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}
+	getUserShopItemFunc();
+
+	function itemDetailsFunc(env) {
+		
+		changeDisplay(modal, 'block')
+		selectedItem = item[env.id]
+		console.log(selectedItem)
+
+		modalItemDetails.innerHTML = ""
+
+		var img1 = document.createElement('IMG')
+		var div1 = document.createElement('DIV')
+		var div2 = document.createElement('DIV')
+		var div3 = document.createElement('DIV')
+		var div4 = document.createElement('DIV')
+
+		img1.setAttribute('src', selectedItem.shopable_id.image)
+	    img1.setAttribute('src', 'https://img.freepik.com/premium-photo/image-colorful-galaxy-sky-generative-ai_791316-9864.jpg?w=2000')
+		div1.innerHTML = capitalize(selectedItem.shopable_id.item_name)
+		div2.innerHTML = selectedItem.shopable_id.item_description
+		// div3.innerHTML = selectedItem.supplier_id.company_name
+		div4.innerHTML = selectedItem.points+' points'
+
+		modalItemDetails.appendChild(img1)
+		modalItemDetails.appendChild(div1)
+		modalItemDetails.appendChild(div2)
+		// modalItemDetails.appendChild(div3)
+		modalItemDetails.appendChild(div4)
+	}
+
+	function closeModal() {
+		changeDisplay(modal, 'none')
+	}
+
+	function claimItemFunc() {
+		console.log('set points')
+		console.log(selectedItem)
+		const data = {
+			orgSlug: orgSlug,
+			shop_item_id: selectedItem.shopable_id.id,
+			points: selectedItem.points
+		}
+		console.log(data)
+
+		fetch(databaseLink+'/api/claim-shop-item', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json', 
+	          	'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+
+            if(data.message) {
+            	alert(data.message)
+            	closeModal()
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+	}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="functions.js"></script>
+	<title>Login Page</title>
+</head>
+<body>
+
+    <div class="Backgroundcontainer">
+        <div class="bubbles">
+            <img src="Icon/Bucket.png" alt="Bucket" style="--i:11">
+            <img src="Icon/Bin.png" alt="Bin" style="--i:15">
+            <img src="Icon/Garbage.png" alt="Garbage" style="--i:10">
+            <img src="Icon/Glove.png" alt="Glove" style="--i:20">
+            <img src="Icon/Bucketwash.png" alt="Bucketwash" style="--i:14">
+            <img src="Icon/scrub.png" alt="scrub" style="--i:16">
+            <img src="Icon/Iron.png" alt="House" style="--i:19">
+            <img src="Icon/Duster.png" alt="House" style="--i:13">
+            <img src="Icon/Soap.png" alt="House" style="--i:18">
+            <img src="Icon/Carwash.png" alt="House" style="--i:24">
+            <img src="Icon/Bucket.png" alt="Bucket" style="--i:17">
+            <img src="Icon/Bin.png" alt="Bin" style="--i:15">
+            <img src="Icon/Garbage.png" alt="Garbage" style="--i:19">
+            <img src="Icon/Glove.png" alt="Glove" style="--i:12">
+            <img src="Icon/Bucketwash.png" alt="Bucketwash" style="--i:14">
+            <img src="Icon/scrub.png" alt="scrub" style="--i:16">
+            <img src="Icon/Iron.png" alt="House" style="--i:15">
+            <img src="Icon/Duster.png" alt="House" style="--i:13">
+            <img src="Icon/Soap.png" alt="House" style="--i:18">
+            <img src="Icon/Carwash.png" alt="House" style="--i:23">
+        </div>
+    </div>
+
+    <div class="login-main-content">
+        <div class="login-div">
+            <h1>Family Coupons</h1>
+        </div>
+        <div class="login-div">            
+            <p>Username</p><input type="text" name="username" value="username">
+            <p>Password</p><input type="password" name="password" value="password">
+            <button onclick="login()">Login</button>
+            <h6 onclick="directToRegistration()">Do not have an account? <u>Register Here</u>.</h6>
+        </div>
+    </div>
+
+<script type="text/javascript">
+	var databaseLink = databaseLink();
+
+	function login(){
+		var username = document.getElementsByName('username')[0].value;
+		var password = document.getElementsByName('password')[0].value;
+
+        
+        while(username.charAt(0) == " "){
+            username = username.substring(1)
+        }
+        if (username == ""){
+            alert("Please fill up username")
+            return;
+        }
+        while(password.charAt(0) == " "){
+            password = password.substring(1)
+        }
+        if (password == ""){
+            alert("Please fill up password")
+            return;
+        }
+
+		const data = {
+			username: username,
+			password: password
+		}
+
+	    fetch(databaseLink+'/api/login', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+
+            if(data.message){
+                alert(data.message)
+            }else{
+                sessionStorage.setItem("token", data.token)
+                sessionStorage.setItem("user_type", data.user_type)
+                window.location.replace("homepage.html")
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+	}
+
+    function directToRegistration() {
+        console.log("direct to registration")
+        window.location.href = 'registration.html'
+    }
+</script>
+</body>
+</html>

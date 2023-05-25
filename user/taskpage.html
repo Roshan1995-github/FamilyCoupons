@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<title>Organization User Task page</title>
+	<style type="text/css">
+		#tablebody>tr:hover {
+		      background-color: green;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-5">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<table>
+		<thead class="task-table-main-hB">
+			<tr>
+				<td>
+					Task Name
+				</td>
+				<td>
+					Points
+				</td>
+				<td>
+					Completed
+				</td>
+				<td>
+					Approval Status
+				</td>
+			</tr>
+		</thead>
+		<tbody id='tablebody' class="task-table-main"></tbody>
+	</table>
+
+	<!-- The Modal -->
+	<div id="myModal" class="modal">
+
+	  <!-- Modal content -->
+	  <div class="modal-task-details">
+	  	<span onclick="closeModal()" class="close-modal">&times;</span>
+	    <table class="task-modal-table">
+	    	<tbody>
+	    		<tr>
+	    			<td>Task Name</td>
+	    			<td>:</td>
+	    			<td><input type="text" name="taskName" class="no-border" disabled></td>
+	    		</tr>
+	    		<tr>
+	    			<td>Task Description</td>
+	    			<td>:</td>
+	    			<td><input type="text" name="description" class="no-border" disabled></td>
+	    		</tr>
+	    		<tr id="completedP">
+	    			<td>Completion Status</td>
+	    			<td>:</td>
+	    			<td><input type="text" name="completed" class="no-border" disabled></td>
+	    		</tr>
+	    		<tr id="approvedP">
+	    			<td>Aproval Status</td>
+	    			<td>:</td>
+	    			<td><input type="text" name="status" class="no-border" disabled></td>
+	    		</tr>
+	    		<tr>
+	    			<td>Points</td>
+	    			<td>:</td>
+	    			<td><input type="number" name="points" class="no-border" disabled></td>
+	    		</tr>
+	    	</tbody>
+	    </table>
+	    <div class="task-modal-buttons">
+	    	<button onclick="closeModal()">Cancel</button>
+	    	<button id='completeNotCompleteBtn'>Completed</button>
+	    </div>
+
+	    
+	  </div>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+	var databaseLink = 'http://coupons.test';
+	var token = sessionStorage.getItem("token");
+  if(!token){
+      window.location.replace("../login.html")
+  }
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+
+	var taskName = document.getElementsByName('taskName')[0];
+	var description = document.getElementsByName('description')[0];
+	var completed = document.getElementsByName('completed')[0];
+	var approvalStatus = document.getElementsByName('status')[0];
+	var points = document.getElementsByName('points')[0];
+
+	var tablebody = document.getElementById('tablebody')
+	var participants = document.getElementById('participants')
+	var completeNotCompleteBtn = document.getElementById('completeNotCompleteBtn');
+
+	var taskData = "";
+
+	function openModal(){
+		document.getElementById('myModal').style.display="block";
+	}
+
+	function closeModal(){
+		document.getElementById('myModal').style.display="none";
+	}
+
+	function changeDisplay(elmnt, styl){
+		elmnt.style.display=styl;
+	}
+
+	// function inputStatus(env){
+	// 	if(env == 'false'){
+	// 		taskName.removeAttribute('disabled')
+	// 		description.removeAttribute('disabled')
+	// 		completed.removeAttribute('disabled')
+	// 		approvalStatus.removeAttribute('disabled')
+	// 		points.removeAttribute('disabled')
+	// 	}else{
+	// 		taskName.setAttribute('disabled', env)
+	// 		description.setAttribute('disabled', env)
+	// 		completed.setAttribute('disabled', env)
+	// 		approvalStatus.setAttribute('disabled', env)
+	// 		points.setAttribute('disabled', env)
+	// 	}
+	// }
+
+	// function newTask(){
+	// 	openModal();
+	// 	clearFunc();
+	// 	inputStatus('false');
+	// 	changeDisplay(completedP,'none');
+	// 	changeDisplay(approvedP,'none');
+
+	// 	createApproveBtn.setAttribute('onclick', 'createTask()')
+	// 	createApproveBtn.innerHTML = "Create"
+	// 	createApproveBtn.removeAttribute('disabled')
+	// }
+
+	function viewTask(){
+		openModal();
+	}
+
+	// function clearFunc(){
+	// 	taskName.value = ""
+	// 	description.value = ""
+	// 	completed.value = ""
+	// 	approvalStatus.value = ""
+	// 	points.value = ""
+
+	// 	//participants.innerHTML = ""
+	// }
+
+	// function createTask(){
+	// 	var participantsArray = [];
+	// 	var participantUser = document.getElementsByName('participantUser')
+
+	// 	for (var i=0; i<participantUser.length; i++){
+	// 		console.log(participantUser[i].value)
+	// 		console.log(participantUser[i].checked)
+	// 		if(participantUser[i].checked){
+	// 			var obj = {
+	// 				slug: participantUser[i].value
+	// 			}
+	// 			participantsArray.push(obj)
+	// 		}
+	// 	}
+
+	// 	const data = {
+	// 		orgSlug: orgSlug,
+	// 		taskName:taskName.value,
+	// 		description:description.value,
+	// 		// later add participants 
+	// 		participants:participantsArray,
+	// 		points:points.value
+	// 	}
+	// 	console.log(data)
+	// 	fetch(databaseLink+'/api/new-task', {
+	//         method: 'POST', // or 'PUT'
+	//         headers: {
+	//             'Content-Type': 'application/json',
+	//                 'Authorization': 'Bearer '+token
+	//         },
+	//         body: JSON.stringify(data),
+	//     })
+	//     .then(response => response.json())
+	//     .then(data => {
+	//         console.log('Success:', data);
+	//         alert(data.message);
+	//       })
+	//     .catch((error) => {
+	//         console.error('Error:', error);
+	//     }); 
+	// }
+
+	function getTask(){
+		fetch(databaseLink+'/api/get-org-tasks-user/'+orgSlug, {
+	        method: 'GET', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        }
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+	        var data = data.data
+
+			tablebody.innerHTML = ""
+			// participants.innerHTML = ""
+
+			for(var i=0; i<data.length; i++){
+				var tr = document.createElement('TR')
+				var td1 = document.createElement('TD')
+				var td2 = document.createElement('TD')
+				var td3 = document.createElement('TD')
+				var td4 = document.createElement('TD')
+
+				tr.setAttribute('id', i)
+				
+				td1.innerHTML = capitalize(data[i].name)
+				// if(data[i].assigned_to_id){
+				// 	td2.innerHTML = data[i].assigned_to_id.name
+				// }else{
+				// 	td2.innerHTML = ""
+				// }
+				td2.innerHTML = data[i].points
+				td3.innerHTML = capitalize(data[i].completion)
+				td4.innerHTML = capitalize(data[i].status)
+
+				tr.appendChild(td1)
+				tr.appendChild(td2)
+				tr.appendChild(td3)
+				tr.appendChild(td4)
+
+				tablebody.appendChild(tr)
+
+				tr.addEventListener('click', function(e){
+					viewTask()
+					taskData = data[this.id]
+
+					taskName.value = capitalize(taskData.name)
+					description.value = taskData.description
+					completed.value = capitalize(taskData.completion)
+					approvalStatus.value = capitalize(taskData.status)
+					points.value = taskData.points
+					// if(taskData.assigned_to_id){
+					// 	td2.innerHTML = taskData.assigned_to_id.name
+					// }else{
+					// 	td2.innerHTML = ""
+					// }
+
+					completeNotCompleteBtn.removeAttribute('disabled')
+
+					if(taskData.completion == "false"){
+						completeNotCompleteBtn.setAttribute('onclick', 'completeNotCompleteTaskFunc("true")')
+						completeNotCompleteBtn.innerHTML = "Completed"
+					}else{
+						completeNotCompleteBtn.setAttribute('onclick', 'completeNotCompleteTaskFunc("false")')
+						completeNotCompleteBtn.innerHTML = "Not Completed"
+					}
+
+					if(taskData.status != "-"){
+						completeNotCompleteBtn.setAttribute('disabled', 'true')
+					}
+            	})
+			}
+
+	    })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}getTask();
+
+	function completeNotCompleteTaskFunc(env){
+		const data = {
+			orgSlug: orgSlug,
+			taskID: taskData.id,
+			decision: env
+		}
+		console.log(data)
+		fetch(databaseLink+'/api/complete-task', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '+token
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        getTask()
+        closeModal()
+        alert(data.message);
+      })
+    .catch((error) => {
+        console.error('Error:', error);
+    }); 
+	}
+
+</script>
+
+</body>
+</html>

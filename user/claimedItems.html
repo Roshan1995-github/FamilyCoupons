@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<title>Organization User Claimed Items Page</title>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-5">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<!--Main Content-->
+	<div>
+		<table>
+			<thead class="task-table-main-hB">
+				<tr>
+					<td>Item Name</td>
+					<td>Points</td>
+					<td>Date</td>
+				</tr>
+			</thead>
+			<tbody id="tablebody" class="task-table-main">
+				
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var databaseLink = databaseLink();
+	var token = sessionStorage.getItem("token");
+	if(!token){
+	    window.location.replace("../login.html")
+	}
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+	console.log(orgSlug)
+
+	var tablebody = document.getElementById('tablebody')
+
+	function getClaimedItems(){
+		const data = {
+			orgSlug: orgSlug
+		}
+
+		fetch(databaseLink+'/api/claimed-items-child', {
+	        method: 'POST', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        },	        
+            body: JSON.stringify(data),
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+
+			tablebody.innerHTML = ""
+
+			var data = data.data
+			for(var i=0; i<data.length; i++){
+				var tr = document.createElement('TR')
+				var td1 = document.createElement('TD')
+				var td2 = document.createElement('TD')
+				var td3 = document.createElement('TD')
+
+				tr.setAttribute('id', i)
+				
+				td1.innerHTML = capitalize(data[i].shop_id.item_name)
+				td2.innerHTML = data[i].points
+				td3.innerHTML = getProperDate(data[i].created_at)[1]
+
+				tr.appendChild(td1)
+				tr.appendChild(td2)
+				tr.appendChild(td3)
+
+				tablebody.appendChild(tr)
+			}
+	      })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    });
+	}getClaimedItems();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="functions.js"></script>
+	<title>Registration Page</title>
+</head>
+<body>
+
+<!--Text on Registration Page-->
+<div class="reg-main-content">	
+    <div class="login-div"style="width: 600px; margin: 0px auto;">
+        <h1>Family Coupons</h1>
+    </div>
+	<table class="registration-table">
+		<tbody>
+			<tr>
+				<td>Name</td>
+				<td>:</td>
+				<td><input type="text" name="name"></td>
+			</tr>
+			<tr>
+				<td>Email</td>
+				<td>:</td>
+				<td><input type="text" name="email"></td>
+			</tr>
+			<tr>
+				<td>Address</td>
+				<td>:</td>
+				<td><input type="text" name="address"></td>
+			</tr>
+			<tr>
+				<td>Username</td>
+				<td>:</td>
+				<td><input type="text" name="username"></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td>:</td>
+				<td><input type="password" name="password"></td>
+			</tr>
+			<tr>
+				<td>Confirm Password</td>
+				<td>:</td>
+				<td><input type="password" name="password"></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="reg-btn-div">
+		<button onclick="register()">Register</button>
+		<h6 onclick="directToLogin()">Already have an account? <u>Login Here</u>.</h6>
+	</div>
+</div>
+
+<script type="text/javascript">
+var databaseLink = databaseLink();
+	
+function register(){
+	var name = document.getElementsByName('name')[0].value;
+	var email = document.getElementsByName('email')[0].value;
+	var address = document.getElementsByName('address')[0].value;
+	var username = document.getElementsByName('username')[0].value;
+	var password = document.getElementsByName('password')[0].value;
+	var confirmPassword = document.getElementsByName('password')[1].value;
+
+	while(name.charAt(0) == " "){
+		name = name.substring(1)
+	}
+	if (name == ""){
+		alert("Please fill up name")
+		return;
+	}
+	while(email.charAt(0) == " "){
+		email = email.substring(1)
+	}
+	if (email == ""){
+		alert("Please fill up email")
+		return;
+	}
+	while(address.charAt(0) == " "){
+		address = address.substring(1)
+	}
+	if (address == ""){
+		alert("Please fill up address")
+		return;
+	}
+	while(username.charAt(0) == " "){
+		username = username.substring(1)
+	}
+	if (username == ""){
+		alert("Please fill up username")
+		return;
+	}
+	while(password.charAt(0) == " "){
+		password = password.substring(1)
+	}
+	if (password == ""){
+		alert("Please fill up password")
+		return;
+	}
+	while(confirmPassword.charAt(0) == " "){
+		confirmPassword = confirmPassword.substring(1)
+	}
+	if (confirmPassword == ""){
+		alert("Please fill up confirm password")
+		return;
+	}
+
+	//check if password matches with confirmPassword
+	if(password!=confirmPassword){
+		alert('Password does not match!');
+		return;
+	}
+
+	const data = {
+		name: name,
+		email: email,
+		address: address,
+		username: username,
+		password: password
+	}
+	console.log(data);
+
+	//registering user into database
+    fetch(databaseLink+'/api/user-registration', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        alert(data.message);
+        window.location.href = 'login.html'
+      })
+    .catch((error) => {
+        console.error('Error:', error);
+    }); 
+}
+
+function directToLogin() {
+    console.log("direct to login")
+    window.location.href = 'login.html'
+}
+
+</script>
+</body>
+</html>

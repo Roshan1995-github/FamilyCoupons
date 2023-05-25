@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="functions.js"></script>
+	<title>Profile</title>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html'" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'profile.html'" class="navigation-btns">Profile</button>
+				<!-- <button onclick="window.location.href = 'shop.html'" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'homepage.html'" class="navigation-btns">How to Use</button> -->		
+			</div>
+		</div>	
+		<div class="padding-top-5">
+			<button onclick="logout()" class="navigation-btns">Logout</button>	
+		</div>	
+	</div>
+
+	<!-- Main Content -->
+	<div class="profile-main-content">
+		<table class="profile-table">
+			<tbody>
+				<tr>
+					<td colspan="3" class="profile-image-td">
+						<img src="https://i.pinimg.com/736x/bd/16/80/bd1680f33671fd642f3a61e0d6ce3de7.jpg">
+					</td>
+				</tr>
+				<tr>
+					<td>Name</td>
+					<td>:</td>
+					<td><input type="text" name="fullname" disabled></td>
+				</tr>
+				<tr>
+					<td>Email</td>
+					<td>:</td>
+					<td><input type="text" name="email" disabled></td>
+				</tr>
+				<tr>
+					<td>Address</td>
+					<td>:</td>
+					<td><input type="text" name="address" disabled></td>
+				</tr>
+				<tr>
+					<td>Username</td>
+					<td>:</td>
+					<td><input type="text" name="username" disabled></td>
+				</tr>
+				<tr>
+					<td>User ID</td>
+					<td>:</td>
+					<td><input type="text" name="userId" disabled></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+	
+	var databaseLink = databaseLink();
+	var token = sessionStorage.getItem("token");
+    if(!token){
+        window.location.replace("login.html")
+    }
+
+    var fullname = document.getElementsByName('fullname')[0]
+	var email = document.getElementsByName('email')[0]
+	var address = document.getElementsByName('address')[0]
+	var username = document.getElementsByName('username')[0]
+	var userId = document.getElementsByName('userId')[0]
+
+    function getProfile(){
+    	fetch(databaseLink+'/api/get-user-profile', {
+	      method: 'GET', // or 'PUT'
+	      headers: {
+	          'Content-Type': 'application/json',
+	              'Authorization': 'Bearer '+token
+	      },
+	  	})
+	  .then(response => response.json())
+	  .then(data => {
+	      console.log('Success:', data);
+
+	      if(data != null) {
+	      	var data = data.data
+	      	console.log
+	      	fullname.value = capitalize(data.name)
+	      	email.value = data.email
+	      	address.value = data.address
+	      	username.value = data.username
+	      	userId.value = data.slug
+	      }
+
+	      
+	    })
+	  .catch((error) => {
+	      console.error('Error:', error);
+	  }); 
+    }
+    getProfile();
+
+</script>
+
+</body>
+</html>		

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<title>Organization User Homepage</title>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-5">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<!--Main Content-->
+	<div class="user-homepage-div">
+		<div id="points"></div>
+		<div id="numCompletion" onclick="directToRegistration('taskpage')"></div>
+		<div id="numStatus" onclick="directToRegistration('taskpage')"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var databaseLink = databaseLink();
+	var token = sessionStorage.getItem("token");
+	if(!token){
+	    window.location.replace("../login.html")
+	}
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+	console.log(orgSlug)
+
+	var points = document.getElementById('points')
+	var numCompletion = document.getElementById('numCompletion')
+	var numStatus = document.getElementById('numStatus')
+
+	function loadData(){
+
+		const data = {
+			orgSlug: orgSlug
+		}
+
+	    fetch(databaseLink+'/api/get-user-homepage-data', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+
+            if(data.points == null) {
+            	points.innerHTML = "Available Points</br></br>0"
+            }else{
+            	points.innerHTML = "Available Points</br></br>"+data.points
+            }
+            
+			numCompletion.innerHTML = "Task Pending Completion</br></br>"+data['task completion']
+			numStatus.innerHTML = "Task Pending Approval</br></br>"+data['task status']
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+	}loadData();
+
+
+
+    function directToRegistration(env) {
+        window.location.href = env+'.html?os='+orgSlug
+    }
+</script>
+
+</body>
+</html>

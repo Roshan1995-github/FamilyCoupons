@@ -1,0 +1,206 @@
+table {
+  width: 100%;
+  margin-top: 40px;
+}
+thead>tr>td {
+  font-weight: bold;
+  text-decoration: underline;
+  text-align: center;
+}
+td{
+  border: solid black 1px;
+  width: 25%;
+  padding: 10px;
+}
+
+
+/* ----------------------------------- Homepage Page ----------------------------------- */
+.user-homepage-div {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 15%;
+}
+.user-homepage-div>div {
+  border: solid green 3px;
+  text-align: center;
+  height: 150px;
+  width: 250px;
+  padding-top: 100px;
+  font-size: 20px;
+  border-radius: 20px;
+  background-color: lightgreen;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.user-homepage-div>div:hover {
+  background-color: limegreen;  
+}
+.user-homepage-div>div:nth-child(1):hover {
+  background-color: lightgreen;  
+}
+
+
+
+
+/* ----------------------------------- Task Page ----------------------------------- */
+.task-table-main-hB>tr>td {
+  border: solid black 2px;
+  font-size: 20px;
+  background-color: DarkOliveGreen;
+}
+.task-table-main {
+  background-color: chartreuse;
+}
+
+.task-modal-table {
+  width: 80%;
+  margin: 0px auto;
+}
+.task-modal-table>tbody>tr>td{
+  border: none;
+  padding: 0px;
+  padding-bottom: 20px;
+}
+.task-modal-table>tbody>tr>td>input{
+  width: 98%;
+  height: 20px;
+}
+.task-modal-table>tbody>tr>td:nth-child(1){
+  width: 35%;
+  text-align: left;
+}
+.task-modal-table>tbody>tr>td:nth-child(2){
+  width: 5%;
+  font-weight: bold;
+}
+.task-modal-table>tbody>tr>td:nth-child(3){
+  width: 60%;
+}
+.task-modal-table>tbody>tr:nth-child(3)>td:nth-child(1), .task-modal-table>tbody>tr:nth-child(3)>td:nth-child(2){
+  vertical-align: text-top;
+}
+.participant-name {
+  width: 100%;
+  padding: 5px;
+}
+
+.modal-task-details {
+  margin: 5% auto; /* 15% from the top and centered */
+  padding: 30px 0px 30px 0px;
+  border: 1px solid #888;
+  min-width: 500px;
+  width: 60%; /* Could be more or less, depending on screen size */
+  text-align: center;
+  border-radius: 20px;
+  border: solid blue 3px;
+  background-color: lightblue;
+}
+.task-modal-buttons {
+  display: flex;
+  width: 80%;
+  margin: 0px auto;
+  margin-top: 20px;
+  justify-content: space-around;
+}
+.task-modal-buttons>button {
+  display: block;
+  width: 40%;
+  height: 40px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 17px;
+}
+.task-modal-buttons>button:hover:enabled {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.task-modal-buttons>button:nth-child(1) {
+  background-color: red;
+}
+.task-modal-buttons>button:nth-child(2) {
+  background-color: green;
+}
+
+
+/* ----------------------------------- Shop Page ----------------------------------- */
+.shop-item-div {
+  border: solid green 3px;
+  display: inline-block;
+  width: 250px;
+  padding: 20px 10px;
+  text-align: center;
+  margin: 20px 10px 0px 10px;
+  border-radius: 10px;
+  background-color: lightgreen;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.shop-item-div:hover {
+  background-color: limegreen;  
+}
+.shop-item-div>img {
+  width: 150px;
+  height: 150px;
+  border-radius: 20px;
+}
+.shop-item-div>p:nth-child(1) {
+  
+}
+.shop-item-div>p:nth-child(2) {
+  
+}
+.modal-item-details {
+  margin: 5% auto; /* 15% from the top and centered */
+  padding: 30px 0px 30px 0px;
+  border: 1px solid #888;
+  min-width: 380px;
+  width: 35%; /* Could be more or less, depending on screen size */
+  text-align: center;
+  border-radius: 20px;
+  border: solid blue 3px;
+  background-color: lightblue;
+}
+.modal-item-details>div>img {
+  border: solid black 1px;
+  width: 300px;
+  height: 300px;
+}
+.modal-item-details>div>button {
+  width: 35%;
+  border-radius: 10px;
+  height: 35px;
+  background-color: CornflowerBlue;
+  color: white;
+  font-size: 20px;
+}
+.modal-item-details>div>button:nth-child(2) {
+  background-color: red;
+}
+.modal-item-details>div>button:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.modal-item-details>div>div {
+  padding-top: 15px;
+}
+.modal-item-details>div:nth-child(2) {
+  padding-top: 15px;
+}
+.modal-item-details>div>div:nth-child(3) {
+  width: 300px;
+  margin: 0px auto;
+  text-align: center;
+}
+.modal-points-div {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  margin: 0px auto;
+  padding-bottom: 15px;
+}
+.modal-points-div>p, .modal-points-div>input {
+  margin: 0px;
+  padding: 0px;
+  text-align: right;
+  font-size: 20px;
+}
+.modal-points-div>input {
+  width: 180px;
+  padding-right: 5px;
+}

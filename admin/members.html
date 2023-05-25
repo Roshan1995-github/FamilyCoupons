@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script src="../functions.js"></script>
+	<script src="functions.js"></script>
+	<title>Organization Admin Members page</title>
+
+	<style type="text/css">
+		.button-div>button {
+			margin-right: 10px;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<!--Navigation Bar-->
+	<div class="display-flex-SB">
+		<div class="display-flex-SA">
+			<div class="FC-title padding-top-5">Family Coupons</div>
+			<div class="padding-top-5">
+				<button onclick="window.location.href = 'homepage.html?os='+orgSlug" class="navigation-btns">Home</button>
+				<button onclick="window.location.href = 'taskpage.html?os='+orgSlug" class="navigation-btns">Task</button>
+				<button onclick="window.location.href = 'members.html?os='+orgSlug" class="navigation-btns">Members</button>
+				<button onclick="window.location.href = 'shop.html?os='+orgSlug" class="navigation-btns">Shop</button>
+				<button onclick="window.location.href = 'claimedItems.html?os='+orgSlug" class="navigation-btns">Claimed Items</button>
+			</div>
+		</div>	
+		<div class="padding-top-10">
+			<button onclick="window.close();" class="navigation-btns">Close</button>
+		</div>	
+	</div>
+
+	<!--Main Content-->
+	<div>
+		<!--Add Member button-->
+		<div class="create-task-btn-div button-div">
+			<button onclick="addMember()">Add Member</button>
+			<button onclick="newMember()">Register New Member</button>
+		</div>
+
+		<table>
+			<thead class="task-table-main-hB">
+				<tr>
+					<td>Name</td>
+					<td>ID</td>
+					<td>Total Points</td>
+				</tr>
+			</thead>
+			<tbody id="tablebody" class="task-table-main">
+				
+			</tbody>
+		</table>
+
+		<!-- The Modal -->
+		<div id="myModal1" class="modal">
+
+		  <!-- Modal content -->
+		  <div class="member-modal1">
+		    <table class="member-modal1-table">
+		    	<tbody>
+		    		<tr>
+		    			<td>Name</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="name"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Email</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="email" disabled></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Address</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="address"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Username</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="username"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Password</td>
+		    			<td>:</td>
+		    			<td><input type="password" name="password"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Confirm Password</td>
+		    			<td>:</td>
+		    			<td><input type="password" name="password"></td>
+		    		</tr>
+		    	</tbody>
+		    </table>
+		    <div class="task-modal-buttons">
+		    	<button onclick="closeModal1()">Cancel</button>
+		    	<button onclick="register()">Register</button>
+		    </div>
+		  </div>
+		</div>
+
+		<!-- The Modal -->
+		<div id="myModal2" class="modal">
+
+		  <!-- Modal content -->
+		  <div class="member-modal2" style="width: 400px">
+		    <table class="member-modal2-table">
+		    	<tbody>
+		    		<tr>
+		    			<td>User ID</td>
+		    			<td>:</td>
+		    			<td><input type="text" name="unique_id"></td>
+		    		</tr>
+		    		<tr>
+		    			<td>Role</td>
+		    			<td>:</td>
+		    			<td>		    				
+						    <select id="userRole">
+						    	<option value="user">User</option>
+						    	<option value="admin">Admin</option>
+						    </select>
+		    			</td>
+		    		</tr>
+		    	</tbody>
+		    </table>
+		    <div class="task-modal-buttons">
+		    	<button onclick="closeModal2()">Cancel</button>
+		    	<button onclick="addMemberToOrg()">Add Member</button>
+		    </div>
+		  </div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var databaseLink = 'http://coupons.test';
+	var token = sessionStorage.getItem("token");
+	  if(!token){
+	      window.location.replace("../login.html")
+	  }
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var orgSlug = urlParams.get('os')
+	console.log(orgSlug)
+
+	var tablebody = document.getElementById('tablebody')
+	var myModal1 = document.getElementById('myModal1')
+	var myModal2 = document.getElementById('myModal2')
+
+	var memberData = "";
+
+	function getMembers(){
+		fetch(databaseLink+'/api/get-org-members/'+orgSlug, {
+	        method: 'GET', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        }
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+
+	        var email = document.getElementsByName('email')[0]
+	        email.value = data.userEmail
+	        var data = data.data
+			tablebody.innerHTML = ""
+
+			for(var i=0; i<data.length; i++){
+				var tr = document.createElement('TR')
+				var td1 = document.createElement('TD')
+				var td2 = document.createElement('TD')
+				var td3 = document.createElement('TD')
+
+				tr.setAttribute('id', i)
+				
+				td1.innerHTML = data[i].name
+				td2.innerHTML = data[i].slug
+				console.log(data[i].points)
+				if(data[i].points == null) {
+					td3.innerHTML = 0
+				}else{
+					td3.innerHTML = data[i].points
+				}
+
+				tr.appendChild(td1)
+				tr.appendChild(td2)
+				tr.appendChild(td3)
+
+				tablebody.appendChild(tr)
+
+				tr.addEventListener('click', function(e){
+					memberData = data[this.id]
+					console.log(memberData)
+    			})
+			}
+	      })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    });
+	}getMembers();
+
+	function changeDisplay(elmnt, styl){
+		elmnt.style.display=styl;
+	}
+
+	function newMember(){
+		changeDisplay(myModal1, 'block');
+	}
+
+	function addMember(){
+		changeDisplay(myModal2, 'block');
+	}
+
+	function closeModal1(){
+		changeDisplay(myModal1, 'none');
+	}
+
+	function closeModal2(){
+		changeDisplay(myModal2, 'none');
+	}
+
+	function register(){
+		var name = document.getElementsByName('name')[0].value;
+		var email = document.getElementsByName('email')[0].value;
+		var address = document.getElementsByName('address')[0].value;
+		var username = document.getElementsByName('username')[0].value;
+		var password = document.getElementsByName('password')[0].value;
+		var confirmPassword = document.getElementsByName('password')[1].value;
+
+		//check if password matches with confirmPassword
+		if(password!=confirmPassword){
+			alert('Password does not match!');
+			return;
+		}
+
+		const data = {
+			name: name,
+			email: email,
+			address: address,
+			username: username,
+			password: password,
+			slug: orgSlug
+		}
+		console.log(data);
+
+		//registering user into database
+	    fetch(databaseLink+'/api/org-member-registration', {
+	        method: 'POST', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        },
+	        body: JSON.stringify(data),
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+	        alert(data.message);
+	        getMembers()
+	        closeModal1()
+	      })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}
+
+	function addMemberToOrg(){
+		var unique_id = document.getElementsByName('unique_id')[0].value;
+		var userRole = document.getElementById('userRole').value;
+		const data = {
+			unique_id: unique_id,
+			userRole: userRole,
+			slug: orgSlug
+		}
+		console.log(data);
+
+		//adding member to organization
+	    fetch(databaseLink+'/api/add-member-to-organization', {
+	        method: 'POST', // or 'PUT'
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Authorization': 'Bearer '+token
+	        },
+	        body: JSON.stringify(data),
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        console.log('Success:', data);
+	        alert(data.message);
+	      })
+	    .catch((error) => {
+	        console.error('Error:', error);
+	    }); 
+	}
+</script>
+
+</body>
+</html>
